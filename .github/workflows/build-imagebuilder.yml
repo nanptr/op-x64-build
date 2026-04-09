@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   IWRT_VERSION: 24.10.5
   IWRT_TARGET: rockchip
   IWRT_SUBTARGET: armv8
@@ -25,7 +26,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Prepare environment
       run: |
@@ -35,13 +36,14 @@ jobs:
 
     - name: Download ImageBuilder
       run: |
-        mkdir -p /workdir
-        cd /workdir
+        WORKDIR="${RUNNER_TEMP}/imagebuilder"
+        mkdir -p "${WORKDIR}"
+        cd "${WORKDIR}"
         IMAGEBUILDER="immortalwrt-imagebuilder-${IWRT_VERSION}-${IWRT_TARGET}-${IWRT_SUBTARGET}.Linux-x86_64.tar.zst"
         BASE_URL="https://downloads.immortalwrt.org/releases/${IWRT_VERSION}/targets/${IWRT_TARGET}/${IWRT_SUBTARGET}"
         wget -nv "${BASE_URL}/${IMAGEBUILDER}"
         tar --zstd -xf "${IMAGEBUILDER}"
-        echo "IMAGEBUILDER_DIR=/workdir/${IMAGEBUILDER%.Linux-x86_64.tar.zst}.Linux-x86_64" >> "$GITHUB_ENV"
+        echo "IMAGEBUILDER_DIR=${WORKDIR}/${IMAGEBUILDER%.Linux-x86_64.tar.zst}.Linux-x86_64" >> "$GITHUB_ENV"
 
     - name: Prepare package list
       run: |
