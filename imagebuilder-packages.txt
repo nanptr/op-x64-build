@@ -1,9 +1,16 @@
 luci
 luci-app-homeproxy
 luci-app-dockerman
+luci-app-ttyd
 luci-app-zerotier
 docker
 dockerd
 docker-compose
 zerotier
 cgroupfs-mount
+block-mount
+e2fsprogs
+fdisk
+parted
+nvme-cli
+smartmontools

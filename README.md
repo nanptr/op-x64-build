@@ -17,12 +17,19 @@ GitHub Actions based `ImageBuilder` workflow for `FriendlyARM NanoPi R6C`.
 - `luci`
 - `luci-app-homeproxy`
 - `luci-app-dockerman`
+- `luci-app-ttyd`
 - `luci-app-zerotier`
 - `docker`
 - `dockerd`
 - `docker-compose`
 - `zerotier`
 - `cgroupfs-mount`
+- `block-mount`
+- `e2fsprogs`
+- `fdisk`
+- `parted`
+- `nvme-cli`
+- `smartmontools`
 
 ## Custom Files
 - `files/etc/uci-defaults/99-nanopi-r6c-defaults`
@@ -40,6 +47,7 @@ GitHub Actions based `ImageBuilder` workflow for `FriendlyARM NanoPi R6C`.
 ## Notes
 - This branch is intended to validate whether `ImageBuilder` can package `docker` successfully by increasing `ROOTFS_PARTSIZE`.
 - `imagebuilder-packages.txt` controls the package list embedded into the firmware image.
+- The current package set also prepares for SSD partitioning, ext4 formatting, SMART checks, and a LuCI web terminal.
 
 ## Credits
 
