@@ -19,6 +19,9 @@ GitHub Actions based `ImageBuilder` workflow for `FriendlyARM NanoPi R6C`.
 - `luci-app-dockerman`
 - `luci-app-ttyd`
 - `luci-app-zerotier`
+- `luci-i18n-homeproxy-zh-cn`
+- `luci-i18n-dockerman-zh-cn`
+- `luci-i18n-zerotier-zh-cn`
 - `docker`
 - `dockerd`
 - `docker-compose`
