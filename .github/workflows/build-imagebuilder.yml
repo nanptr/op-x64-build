@@ -109,5 +109,4 @@ jobs:
         name: imagebuilder-nanopi-r6c-${{ env.IWRT_VERSION }}${{ env.FILE_DATE }}
         body_path: release.txt
         append_body: true
-        generate_release_notes: true
         files: ${{ env.FIRMWARE_DIR }}/*
