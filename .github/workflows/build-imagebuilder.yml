@@ -3,7 +3,7 @@ name: Build ImmortalWrt NanoPi R6C ImageBuilder
 on:
   push:
     branches:
-      - imagebuilder
+      - main
     paths:
       - immortalwrt-version.txt
   workflow_dispatch:

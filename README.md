@@ -52,7 +52,7 @@ GitHub Actions based `ImageBuilder` workflow for `FriendlyARM NanoPi R6C`.
 - Release publishing uses the built-in `GITHUB_TOKEN`.
 
 ## Notes
-- This branch is intended to validate whether `ImageBuilder` can package `docker` successfully by increasing `ROOTFS_PARTSIZE`.
+- This repository now tracks the `ImageBuilder` flow on `main`, including the larger `ROOTFS_PARTSIZE` needed to package `docker` successfully.
 - `imagebuilder-packages.txt` controls the package list embedded into the firmware image.
 - The current package set also prepares for SSD partitioning, ext4 formatting, SMART checks, and a LuCI web terminal.
 
