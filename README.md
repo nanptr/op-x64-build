@@ -28,6 +28,7 @@ GitHub Actions based full source build workflow for `FriendlyARM NanoPi R6C`.
 - `luci-app-homeproxy`
 - `luci-app-dockerman`
 - `luci-app-ttyd`
+- `kmod-rtc-pcf8563`, `hwclock`
 - Storage utilities for NVMe, partitioning, and ext4 management
 
 ## Custom Files
