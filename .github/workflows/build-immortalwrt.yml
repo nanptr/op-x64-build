@@ -31,18 +31,17 @@ jobs:
           - title: NanoPi R6C
             artifact_name: firmware-nanopi-r6c
             config_file: configs/iwrt-nanopi-r6c.config
-            files_dir: files
+            custom_files_dir: files
           - title: NanoPi R5S
             artifact_name: firmware-nanopi-r5s
             config_file: configs/iwrt-nanopi-r5s.config
-            files_dir: files-r5s
+            custom_files_dir: files-r5s
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       REPO_URL: https://github.com/immortalwrt/immortalwrt
       REPO_BRANCH: openwrt-24.10
       CONFIG_FILE: ${{ matrix.config_file }}
-      FILES_DIR: ${{ matrix.files_dir }}
       TZ: Asia/Shanghai
 
     steps:
@@ -95,18 +94,20 @@ jobs:
 
     - name: Load custom files and config
       run: |
-        if [ -d "$FILES_DIR" ]; then
+        if [ -d "${{ matrix.custom_files_dir }}" ]; then
           mkdir -p openwrt/files
-          cp -a "$FILES_DIR"/. openwrt/files/
+          cp -a "${{ matrix.custom_files_dir }}"/. openwrt/files/
         fi
         cp "$CONFIG_FILE" openwrt/.config
         cd openwrt
+        unset FILES FILES_DIR
         make defconfig
         grep -E 'CONFIG_TARGET_|CONFIG_PACKAGE_(dockerd|docker|docker-compose|nginx-ssl|luci-ssl-nginx)|CONFIG_KERNEL_CGROUP_DEVICE|CONFIG_DOCKER_CGROUP_OPTIONS' .config
 
     - name: Download packages
       run: |
         cd openwrt
+        unset FILES FILES_DIR
         make download -j"$(nproc)"
         find dl -size -1024c -exec rm -f {} \;
 
@@ -114,6 +115,7 @@ jobs:
       id: build
       run: |
         cd openwrt
+        unset FILES FILES_DIR
         make -j"$(nproc)" || make -j1 V=s
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> "$GITHUB_ENV"
