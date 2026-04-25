@@ -1,10 +1,10 @@
-# ImmortalWrt NanoPi R6C
+# ImmortalWrt NanoPi R6C / R5S
 
 [![LICENSE](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square&label=LICENSE)](https://github.com/P3TERX/Actions-OpenWrt/blob/master/LICENSE)
 ![GitHub Stars](https://img.shields.io/github/stars/P3TERX/Actions-OpenWrt.svg?style=flat-square&label=Stars&logo=github)
 ![GitHub Forks](https://img.shields.io/github/forks/P3TERX/Actions-OpenWrt.svg?style=flat-square&label=Forks&logo=github)
 
-GitHub Actions based full source build workflow for `FriendlyARM NanoPi R6C`.
+GitHub Actions based full source build workflow for `FriendlyARM NanoPi R6C` and `FriendlyARM NanoPi R5S`.
 
 ## Build Target
 - Source: official ImmortalWrt source tree
@@ -12,12 +12,15 @@ GitHub Actions based full source build workflow for `FriendlyARM NanoPi R6C`.
 - Preferred release selector: `immortalwrt-version.txt`
 - Target: `rockchip/armv8`
 - Device: `friendlyarm_nanopi-r6c`
+- R5S device: `friendlyarm_nanopi-r5s`
 - Rootfs partsize: `1024 MB`
 
 ## Build Config
-- Main config: `configs/iwrt-nanopi-r6c.config`
-- Custom files: `files/`
-- Workflow: `.github/workflows/build-immortalwrt.yml`
+- R6C main config: `configs/iwrt-nanopi-r6c.config`
+- R5S main config: `configs/iwrt-nanopi-r5s.config`
+- R6C custom files: `files/`
+- R5S custom files: `files-r5s/`
+- Workflow: `.github/workflows/build-immortalwrt.yml` with matrix builds for both devices
 
 ## Included Features
 - LuCI on `nginx` via `luci-ssl-nginx`
@@ -32,8 +35,10 @@ GitHub Actions based full source build workflow for `FriendlyARM NanoPi R6C`.
 - Storage utilities for NVMe, partitioning, and ext4 management
 
 ## Custom Files
-- `files/etc/uci-defaults/99-nanopi-r6c-defaults`
-- Default LAN IP: `192.168.10.1`
+- R6C: `files/etc/uci-defaults/99-nanopi-r6c-defaults`
+- R6C default LAN IP: `192.168.10.1`
+- R5S: `files-r5s/etc/uci-defaults/99-nanopi-r5s-defaults`
+- R5S default LAN IP: `192.168.11.1`
 
 ## GitHub Actions
 - Workflow: `.github/workflows/build-immortalwrt.yml`
@@ -41,6 +46,8 @@ GitHub Actions based full source build workflow for `FriendlyARM NanoPi R6C`.
 - Upstream checker: `.github/workflows/check-upstream-release.yml`
 - Schedule: every 6 hours, only commits when a new stable ImmortalWrt release is detected
 - Release target: GitHub Releases
+- One release contains both the R6C and R5S firmware assets
+- Release asset names are normalized as `immortalwrt-<version>-<device>-<original filename>`
 
 ## Secrets
 - No custom Actions secret is required for the default build and release flow.
@@ -48,7 +55,7 @@ GitHub Actions based full source build workflow for `FriendlyARM NanoPi R6C`.
 
 ## Notes
 - This repository now builds full firmware images instead of using `ImageBuilder`, so kernel options can be changed together with package selection.
-- Docker support depends on the full build path because the NanoPi R6C image needs Docker-related cgroup kernel options, not just extra packages.
+- Docker support depends on the full build path because the NanoPi R6C and R5S images need Docker-related cgroup kernel options, not just extra packages.
 - The firmware includes `nginx` as the LuCI web server and reverse-proxy entry point; site-specific `server` blocks are intended to be managed locally after deployment.
 
 ## Credits

@@ -1,4 +1,4 @@
-name: Build ImmortalWrt NanoPi R6C
+name: Build ImmortalWrt NanoPi R6C / R5S
 
 on:
   push:
@@ -7,7 +7,9 @@ on:
     paths:
       - immortalwrt-version.txt
       - configs/iwrt-nanopi-r6c.config
+      - configs/iwrt-nanopi-r5s.config
       - files/**
+      - files-r5s/**
       - .github/workflows/build-immortalwrt.yml
       - README.md
   workflow_dispatch:
@@ -19,16 +21,29 @@ concurrency:
   group: build-immortalwrt-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: openwrt-24.10
-  CONFIG_FILE: configs/iwrt-nanopi-r6c.config
-  TZ: Asia/Shanghai
-
 jobs:
   build:
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - title: NanoPi R6C
+            artifact_name: firmware-nanopi-r6c
+            config_file: configs/iwrt-nanopi-r6c.config
+            files_dir: files
+          - title: NanoPi R5S
+            artifact_name: firmware-nanopi-r5s
+            config_file: configs/iwrt-nanopi-r5s.config
+            files_dir: files-r5s
+
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      REPO_URL: https://github.com/immortalwrt/immortalwrt
+      REPO_BRANCH: openwrt-24.10
+      CONFIG_FILE: ${{ matrix.config_file }}
+      FILES_DIR: ${{ matrix.files_dir }}
+      TZ: Asia/Shanghai
 
     steps:
     - name: Checkout
@@ -80,9 +95,9 @@ jobs:
 
     - name: Load custom files and config
       run: |
-        if [ -d files ]; then
+        if [ -d "$FILES_DIR" ]; then
           mkdir -p openwrt/files
-          cp -a files/. openwrt/files/
+          cp -a "$FILES_DIR"/. openwrt/files/
         fi
         cp "$CONFIG_FILE" openwrt/.config
         cd openwrt
@@ -118,19 +133,49 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ImmortalWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: ${{ matrix.artifact_name }}
         path: ${{ env.FIRMWARE }}/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    - name: Load ImmortalWrt version
+      run: |
+        echo "IWRT_VERSION=$(tr -d '\n' < immortalwrt-version.txt)" >> "$GITHUB_ENV"
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release-assets
+
+    - name: Normalize release asset names
+      run: |
+        mkdir -p release-bundle
+        for dir in release-assets/*; do
+          [ -d "$dir" ] || continue
+          device="$(basename "$dir" | sed 's/^firmware-//')"
+          for file in "$dir"/*; do
+            [ -f "$file" ] || continue
+            base="$(basename "$file")"
+            cp "$file" "release-bundle/immortalwrt-${IWRT_VERSION}-${device}-${base}"
+          done
+        done
 
     - name: Generate release notes
       run: |
         {
-          echo "ImmortalWrt NanoPi R6C"
+          echo "ImmortalWrt NanoPi R6C / R5S"
           echo
           echo "Version: ${IWRT_VERSION}"
-          echo "Default address: 192.168.10.1"
-          if [ -n "${{ steps.build.outputs.kernel_version }}" ]; then
-            echo "Kernel: ${{ steps.build.outputs.kernel_version }}"
-          fi
+          echo
+          echo "Devices:"
+          echo "- NanoPi R6C: 192.168.10.1"
+          echo "- NanoPi R5S: 192.168.11.1"
           echo
           echo "Build mode: full source build"
           echo "Docker cgroup options: enabled"
@@ -142,8 +187,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: immortalwrt-nanopi-r6c
-        name: immortalwrt-nanopi-r6c-${{ env.IWRT_VERSION }}${{ env.FILE_DATE }}
+        tag_name: immortalwrt-nanopi-${{ env.IWRT_VERSION }}
+        name: immortalwrt-nanopi-${{ env.IWRT_VERSION }}
         body_path: release.txt
-        append_body: true
-        files: ${{ env.FIRMWARE }}/*
+        files: release-bundle/*
